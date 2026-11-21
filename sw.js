@@ -1,0 +1,6 @@
+const CACHE_NAME="mouris-v26";
+const ASSETS=["./","./index.html","./repair.html","./new-order.html","./assets/style.css","./assets/fonts/Estedad-Regular.woff2","./assets/fonts/Estedad-Medium.woff2","./assets/fonts/Estedad-Black.woff2","./assets/fonts/Cinzel-SemiBold.ttf","./assets/watch-pattern.svg","./assets/watch-symbol.svg","./assets/app.js","./assets/mouris-logo.png","./assets/icon-192.png","./assets/icon-512.png","./assets/apple-touch-icon.png","./manifest.json"];
+self.addEventListener("install",e=>e.waitUntil((async()=>{const c=await caches.open(CACHE_NAME);await Promise.allSettled(ASSETS.map(x=>c.add(x)));})()));
+self.addEventListener("message",e=>{if(e.data?.type==="SKIP_WAITING")self.skipWaiting();});
+self.addEventListener("activate",e=>e.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith("mouris-")&&k!==CACHE_NAME).map(k=>caches.delete(k)));await self.clients.claim();})()));
+self.addEventListener("fetch",e=>{if(e.request.method!=="GET")return;const u=new URL(e.request.url);if(u.origin!==location.origin)return;e.respondWith((async()=>{const c=await caches.open(CACHE_NAME);try{const r=await fetch(e.request,{cache:"no-cache"});if(r.ok)await c.put(e.request,r.clone());return r;}catch(_){return await c.match(e.request)||new Response("Offline",{status:503});}})());});
